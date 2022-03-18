@@ -108,7 +108,7 @@ const EditTextForm = observer(() => {
   const state = useAppState();
 
   const [text, setText] = useState(
-    state.previousDecoration?.text || "<3 replicad"
+    state.previousDecoration?.text || "pimp me!"
   );
   const [depth, setDepth] = useState(state.previousDecoration?.depth || -0.2);
 
@@ -139,12 +139,13 @@ const EditTextForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
-      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <input autoFocus value={text} onChange={(e) => setText(e.target.value)} />
 
       <InputBlock title="Depth" htmlFor="depth">
         <input
           id="depth"
           type="number"
+          step="0.1"
           value={depth}
           onChange={(e) => setDepth(parseFloat(e.target.value))}
         />
@@ -193,6 +194,7 @@ const EditTextForm = observer(() => {
         {!state.activeDecoration && (
           <SecondaryActionButton
             disabled={state.processing}
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               state.ui.newSelection();

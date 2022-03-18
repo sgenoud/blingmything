@@ -17,8 +17,6 @@ const init = async () => {
   });
 
   loaded = true;
-  console.log(OC.BOPAlgo_Options);
-
   setOC(OC);
 
   return true;
