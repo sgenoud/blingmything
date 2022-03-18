@@ -11,7 +11,7 @@ import {
 } from "replicad-threejs-helper";
 
 const MatcapMaterial = React.memo(function MatcapMaterial(props) {
-  const [matcap] = useTexture(["/static/textures/matcap-1.png"]);
+  const [matcap] = useTexture(["/textures/matcap-1.png"]);
   return <meshMatcapMaterial matcap={matcap} {...props} />;
 });
 
