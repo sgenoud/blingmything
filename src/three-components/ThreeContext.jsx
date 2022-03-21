@@ -4,7 +4,6 @@ import { OrbitControls, GizmoHelper, GizmoViewport } from "@react-three/drei";
 import * as THREE from "three";
 
 import AutoViewport from "./AutoViewport";
-import InfiniteGrid from "./InfiniteGrid";
 
 // We change the default orientation - threejs tends to use Y are the height,
 // while replicad uses Z. This is mostly a representation default.
@@ -34,7 +33,7 @@ export default React.memo(function ThreeContext({ children, ...props }) {
           <GizmoViewport font="18px HKGrotesk, sans-serif" />
         </GizmoHelper>
 
-        <AutoViewport>{children}</AutoViewport>
+        <AutoViewport center>{children}</AutoViewport>
       </Canvas>
     </Suspense>
   );
