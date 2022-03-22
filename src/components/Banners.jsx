@@ -20,10 +20,10 @@ const Pulse = styled.span`
   animation: ${pulsating} 1s infinite alternate ease-out;
 `;
 
-export const PulsingBanner = (props) => {
+export const PulsingBanner = React.memo(function PulsingBanner(props) {
   return (
     <Banner>
       <Pulse {...props} />
     </Banner>
   );
-};
+});
