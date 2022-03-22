@@ -28,12 +28,16 @@ const InputTitle = styled.label`
   font-size: 0.8em;
   font-weight: normal;
 `;
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 const InputBlock = ({ title, htmlFor, children }) => {
   return (
-    <div>
+    <InputWrapper>
       <InputTitle htmlFor={htmlFor}>{title}</InputTitle>
       {children}
-    </div>
+    </InputWrapper>
   );
 };
 
@@ -104,6 +108,152 @@ const Form = styled.form`
   }
 `;
 
+const SaveButtonRow = observer(() => {
+  const state = useAppState();
+
+  return (
+    <SaveButtons>
+      {!state.activeDecoration && (
+        <SecondaryActionButton
+          disabled={state.processing}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            state.ui.newSelection();
+          }}
+        >
+          Cancel
+        </SecondaryActionButton>
+      )}
+      <button role="submit" disabled={state.processing}>
+        {state.activeDecoration ? "Update" : "Apply"}
+      </button>
+    </SaveButtons>
+  );
+});
+
+const EditInsetForm = observer(() => {
+  const state = useAppState();
+
+  const [depth, setDepth] = useState(state.previousDecoration?.depth || -0.2);
+
+  const [margin, setMargin] = useState(state.previousDecoration?.margin || 2);
+  const saveChanges = (e) => {
+    e.preventDefault();
+    const changes = {
+      depth: parseFloat(depth),
+      margin: parseInt(margin),
+    };
+
+    if (
+      state.activeDecoration &&
+      state.activeDecoration.decoration === "inset"
+    ) {
+      state.activeDecoration.update(changes);
+    } else {
+      state.addDecoration("inset", changes);
+    }
+  };
+
+  return (
+    <Form onSubmit={saveChanges}>
+      <InputBlock title="Depth" htmlFor="depth">
+        <input
+          id="depth"
+          type="number"
+          step="0.1"
+          value={depth}
+          onChange={(e) => setDepth(e.target.value)}
+        />
+      </InputBlock>
+
+      <InputBlock title="Margin" htmlFor="margin">
+        <input
+          id="margin"
+          type="number"
+          value={margin}
+          onChange={(e) => setMargin(e.target.value)}
+        />
+      </InputBlock>
+
+      <SaveButtonRow />
+    </Form>
+  );
+});
+
+const EditHoneycombForm = observer(() => {
+  const state = useAppState();
+
+  const [depth, setDepth] = useState(state.previousDecoration?.depth || -0.2);
+  const [margin, setMargin] = useState(state.previousDecoration?.margin || 2);
+  const [radius, setRadius] = useState(state.previousDecoration?.radius || 10);
+  const [padding, setPadding] = useState(
+    state.previousDecoration?.padding || 5
+  );
+
+  const saveChanges = (e) => {
+    e.preventDefault();
+    const changes = {
+      depth: parseFloat(depth),
+      margin: parseInt(margin),
+      radius: parseInt(radius),
+      padding: parseFloat(padding),
+    };
+
+    if (
+      state.activeDecoration &&
+      state.activeDecoration.decoration === "honeycomb"
+    ) {
+      state.activeDecoration.update(changes);
+    } else {
+      state.addDecoration("honeycomb", changes);
+    }
+  };
+
+  return (
+    <Form onSubmit={saveChanges}>
+      <InputBlock title="Depth" htmlFor="depth">
+        <input
+          id="depth"
+          type="number"
+          step="0.1"
+          value={depth}
+          onChange={(e) => setDepth(e.target.value)}
+        />
+      </InputBlock>
+
+      <InputBlock title="Radius" htmlFor="radius">
+        <input
+          id="radius"
+          type="number"
+          value={radius}
+          onChange={(e) => setRadius(e.target.value)}
+        />
+      </InputBlock>
+
+      <InputBlock title="Padding" htmlFor="padding">
+        <input
+          id="padding"
+          type="number"
+          value={padding}
+          onChange={(e) => setPadding(e.target.value)}
+        />
+      </InputBlock>
+
+      <InputBlock title="Margin" htmlFor="margin">
+        <input
+          id="margin"
+          type="number"
+          value={margin}
+          onChange={(e) => setMargin(e.target.value)}
+        />
+      </InputBlock>
+
+      <SaveButtonRow />
+    </Form>
+  );
+});
+
 const EditTextForm = observer(() => {
   const state = useAppState();
 
@@ -124,16 +274,19 @@ const EditTextForm = observer(() => {
     e.preventDefault();
     const changes = {
       text,
-      depth,
-      fontSize,
-      angle,
-      xShift,
-      yShift,
+      depth: parseFloat(depth),
+      fontSize: parseInt(fontSize),
+      angle: parseInt(angle),
+      xShift: parseFloat(xShift),
+      yShift: parseFloat(yShift),
     };
-    if (state.activeDecoration) {
+    if (
+      state.activeDecoration &&
+      state.activeDecoration.decoration === "text"
+    ) {
       state.activeDecoration.update(changes);
     } else {
-      state.addDecoration(changes);
+      state.addDecoration("text", changes);
     }
   };
 
@@ -147,7 +300,7 @@ const EditTextForm = observer(() => {
           type="number"
           step="0.1"
           value={depth}
-          onChange={(e) => setDepth(parseFloat(e.target.value))}
+          onChange={(e) => setDepth(e.target.value)}
         />
       </InputBlock>
 
@@ -156,7 +309,7 @@ const EditTextForm = observer(() => {
           id="fontSize"
           type="number"
           value={fontSize}
-          onChange={(e) => setFontSize(parseInt(e.target.value))}
+          onChange={(e) => setFontSize(e.target.value)}
         />
       </InputBlock>
 
@@ -167,7 +320,7 @@ const EditTextForm = observer(() => {
           min="-360"
           max="360"
           value={angle}
-          onChange={(e) => setAngle(parseInt(e.target.value))}
+          onChange={(e) => setAngle(e.target.value)}
         />
       </InputBlock>
 
@@ -178,7 +331,7 @@ const EditTextForm = observer(() => {
             id="xShift"
             type="number"
             value={xShift}
-            onChange={(e) => setXShift(parseInt(e.target.value))}
+            onChange={(e) => setXShift(e.target.value)}
           />
 
           <label htmlFor="yShift">y</label>
@@ -186,28 +339,51 @@ const EditTextForm = observer(() => {
             id="yShift"
             type="number"
             value={yShift}
-            onChange={(e) => setYShift(parseInt(e.target.value))}
+            onChange={(e) => setYShift(e.target.value)}
           />
         </Inline>
       </InputBlock>
-      <SaveButtons>
-        {!state.activeDecoration && (
-          <SecondaryActionButton
-            disabled={state.processing}
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              state.ui.newSelection();
-            }}
-          >
-            Cancel
-          </SecondaryActionButton>
-        )}
-        <button role="submit" disabled={state.processing}>
-          {state.activeDecoration ? "Update" : "Apply"}
-        </button>
-      </SaveButtons>
+      <SaveButtonRow />
     </Form>
+  );
+});
+
+const DecorationConfig = observer(() => {
+  const state = useAppState();
+  const [decorationType, setDecorationType] = useState(
+    state.activeDecoration?.decoration || "text"
+  );
+
+  const canEdit = state.ui.faceSelected || state.ui.faceSelected === 0;
+
+  let body = null;
+
+  const currentDecoration = canEdit
+    ? decorationType
+    : state.activeDecoration?.decoration;
+
+  if (currentDecoration === "text") body = <EditTextForm />;
+  if (currentDecoration === "inset") body = <EditInsetForm />;
+  if (currentDecoration === "honeycomb") body = <EditHoneycombForm />;
+
+  return (
+    <>
+      <InputBlock title="Decoration type" htmlFor="type-select">
+        <select
+          id="type-select"
+          value={currentDecoration}
+          disabled={!canEdit || state.activeDecoration}
+          onChange={(e) => setDecorationType(e.target.value)}
+        >
+          <option value="text">Text</option>
+          <option value="honeycomb">Honeycomb</option>
+          <option value="inset">Inset</option>
+        </select>
+      </InputBlock>
+
+      {body && <hr />}
+      {body}
+    </>
   );
 });
 
@@ -242,13 +418,10 @@ export default observer(() => {
         }
         onClick={state.ui.newSelection}
       >
-        New face
+        Add decoration
       </button>
 
-      <hr />
-      {(state.activeDecoration ||
-        state.ui.faceSelected ||
-        state.ui.faceSelected === 0) && <EditTextForm />}
+      <DecorationConfig />
     </Menu>
   );
 });

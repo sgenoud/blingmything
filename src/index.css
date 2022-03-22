@@ -367,7 +367,7 @@ blockquote footer {
     padding: 1.5rem 0;
 }
 
-input {
+input, select {
     margin: 0;
     min-width: 0;
 }

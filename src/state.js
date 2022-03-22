@@ -7,13 +7,14 @@ import UIState from "./ui-state";
 
 const TextDecorationConfig = types
   .model("TextDecorationConfig", {
+    decoration: types.literal("text"),
+    faceIndex: types.number,
+    depth: types.optional(types.number, -0.2),
     text: types.optional(types.string, ""),
     angle: types.optional(types.number, 0),
     xShift: types.optional(types.number, 0),
     yShift: types.optional(types.number, 0),
-    depth: types.optional(types.number, -0.2),
     fontSize: types.optional(types.number, 16),
-    faceIndex: types.number,
   })
   .actions((self) => ({
     update({ angle, xShift, yShift, text, depth, fontSize }) {
@@ -25,6 +26,46 @@ const TextDecorationConfig = types
       if (text === "" || text) self.text = text;
     },
   }));
+
+const InsetDecorationConfig = types
+  .model("InsetDecorationConfig", {
+    decoration: types.literal("inset"),
+    faceIndex: types.number,
+    depth: types.optional(types.number, -0.2),
+    margin: types.optional(types.number, 2),
+  })
+  .actions((self) => ({
+    update({ depth, fontSize, margin }) {
+      if (depth) self.depth = depth;
+      if (fontSize) self.fontSize = fontSize;
+      if (margin === 0 || margin) self.margin = margin;
+    },
+  }));
+
+const HoneycombDecorationConfig = types
+  .model("HoneycombDecorationConfig", {
+    decoration: types.literal("honeycomb"),
+    faceIndex: types.number,
+    depth: types.optional(types.number, -0.2),
+    margin: types.optional(types.number, 5),
+    radius: types.optional(types.number, 10),
+    padding: types.optional(types.number, 2),
+  })
+  .actions((self) => ({
+    update({ depth, fontSize, margin, radius, padding }) {
+      if (depth) self.depth = depth;
+      if (fontSize) self.fontSize = fontSize;
+      if (radius) self.radius = radius;
+      if (padding) self.padding = padding;
+      if (margin === 0 || margin) self.margin = margin;
+    },
+  }));
+
+const DecorationConfig = types.union(
+  TextDecorationConfig,
+  InsetDecorationConfig,
+  HoneycombDecorationConfig
+);
 
 const inSeries = (func) => {
   let refresh;
@@ -50,7 +91,7 @@ const inSeries = (func) => {
 
 const AppState = types
   .model("AppState", {
-    decorations: types.array(TextDecorationConfig),
+    decorations: types.array(DecorationConfig),
     ui: UIState,
     history: types.optional(UndoManager, {}),
   })
@@ -69,13 +110,37 @@ const AppState = types
     },
   }))
   .actions((self) => ({
-    addDecoration(decoration) {
-      self.decorations.push(
-        TextDecorationConfig.create({
-          faceIndex: self.ui.faceSelected,
-          ...decoration,
-        })
-      );
+    addDecoration(decorationType, decoration) {
+      if (decorationType === "text") {
+        self.decorations.push(
+          TextDecorationConfig.create({
+            decoration: "text",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
+      if (decorationType === "inset") {
+        self.decorations.push(
+          InsetDecorationConfig.create({
+            decoration: "inset",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
+      if (decorationType === "honeycomb") {
+        self.decorations.push(
+          HoneycombDecorationConfig.create({
+            decoration: "honeycomb",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
       self.ui.deselectFace();
     },
   }))
