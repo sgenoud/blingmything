@@ -52,10 +52,29 @@ const HoneycombDecorationConfig = types
     padding: types.optional(types.number, 2),
   })
   .actions((self) => ({
-    update({ depth, fontSize, margin, radius, padding }) {
+    update({ depth, margin, radius, padding }) {
       if (depth) self.depth = depth;
-      if (fontSize) self.fontSize = fontSize;
       if (radius) self.radius = radius;
+      if (padding) self.padding = padding;
+      if (margin === 0 || margin) self.margin = margin;
+    },
+  }));
+
+const GridDecorationConfig = types
+  .model("GridDecorationConfig", {
+    decoration: types.literal("grid"),
+    faceIndex: types.number,
+    depth: types.optional(types.number, -0.2),
+    margin: types.optional(types.number, 4),
+    width: types.optional(types.number, 16),
+    height: types.optional(types.number, 16),
+    padding: types.optional(types.number, 2),
+  })
+  .actions((self) => ({
+    update({ depth, margin, width, height, padding }) {
+      if (depth) self.depth = depth;
+      if (height) self.height = height;
+      if (width) self.width = width;
       if (padding) self.padding = padding;
       if (margin === 0 || margin) self.margin = margin;
     },
@@ -64,7 +83,8 @@ const HoneycombDecorationConfig = types
 const DecorationConfig = types.union(
   TextDecorationConfig,
   InsetDecorationConfig,
-  HoneycombDecorationConfig
+  HoneycombDecorationConfig,
+  GridDecorationConfig
 );
 
 const inSeries = (func) => {
@@ -135,6 +155,16 @@ const AppState = types
         self.decorations.push(
           HoneycombDecorationConfig.create({
             decoration: "honeycomb",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
+      if (decorationType === "grid") {
+        self.decorations.push(
+          GridDecorationConfig.create({
+            decoration: "grid",
             faceIndex: self.ui.faceSelected,
             ...decoration,
           })
