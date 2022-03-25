@@ -5,7 +5,11 @@ import { setOC } from "replicad";
 import { expose } from "comlink";
 
 // We import our model as a simple function
-import { importFile as loadShape, decorateShape as decorate } from "./cad";
+import {
+  importFile as loadShape,
+  decorateShape as decorate,
+  startWithBox,
+} from "./cad";
 
 // This is the logic to load the web assembly code into replicad
 let loaded = false;
@@ -26,6 +30,11 @@ const started = init();
 async function importFile(file) {
   await started;
   await loadShape(file);
+}
+
+async function importBox() {
+  await started;
+  await startWithBox();
 }
 
 async function decorateShape(config) {
@@ -53,6 +62,7 @@ async function createSTEP(config) {
 }
 
 const API = {
+  importBox,
   importFile,
   decorateShape,
   createSTL,
