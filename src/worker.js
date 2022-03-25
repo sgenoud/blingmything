@@ -40,7 +40,7 @@ async function importBox() {
 async function decorateShape(config) {
   const shape = await decorate(config);
   return {
-    faces: shape.mesh({ tolerance: 0.5, angularTolerance: 30 }),
+    faces: shape.mesh && shape.mesh({ tolerance: 0.5, angularTolerance: 30 }),
     edges: shape.meshEdges({
       tolerance: 0.5,
       angularTolerance: 30,

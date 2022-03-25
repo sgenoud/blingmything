@@ -11,6 +11,7 @@ import { addText } from "./addText";
 import { addInset } from "./addInset";
 import { addHoneycomb } from "./addHoneycomb";
 import { addGrid } from "./addGrid";
+import { addSVG } from "./addSVG";
 
 import { STATE, registerAsLatestShape } from "./state";
 
@@ -58,6 +59,8 @@ export const decorateShape = moize(
 
     if (lastChange.decoration === "text")
       return registerAsLatestShape(await addText(shape, lastChange));
+    if (lastChange.decoration === "svg")
+      return registerAsLatestShape(await addSVG(shape, lastChange));
     if (lastChange.decoration === "inset")
       return registerAsLatestShape(await addInset(shape, lastChange));
     if (lastChange.decoration === "honeycomb")
