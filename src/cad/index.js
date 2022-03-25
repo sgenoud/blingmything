@@ -1,4 +1,10 @@
-import { importSTEP, importSTL, sketchRectangle, EdgeFinder } from "replicad";
+import {
+  importSTEP,
+  importSTL,
+  sketchRectangle,
+  EdgeFinder,
+  FaceFinder,
+} from "replicad";
 import moize from "moize";
 
 import { addText } from "./addText";
@@ -6,7 +12,7 @@ import { addInset } from "./addInset";
 import { addHoneycomb } from "./addHoneycomb";
 import { addGrid } from "./addGrid";
 
-import { STATE, registerAsLatestShape } from "../state";
+import { STATE, registerAsLatestShape } from "./state";
 
 export async function importFile(file) {
   let shape;
@@ -30,6 +36,10 @@ export async function startWithBox() {
     .fillet({
       radius: 5,
       filter: new EdgeFinder().inDirection("Z"),
+    })
+    .shell({
+      thickness: 2,
+      filter: new FaceFinder().inPlane("XY", 30),
     });
 
   STATE.originalShape = shape;

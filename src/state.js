@@ -196,6 +196,19 @@ const AppState = types
       self.processing = false;
     }),
 
+    startWithBox: flow(function* startWithBox() {
+      self.processing = true;
+      try {
+        yield api.importBox();
+        self.baseShapeReady = true;
+        self.error = false;
+      } catch (e) {
+        console.error(e);
+        self.error = true;
+      }
+      self.processing = false;
+    }),
+
     decorateShape: flow(function* decorateShape() {
       self.processing = true;
       try {
