@@ -34,6 +34,12 @@ const DropzoneWrapper = styled.div`
   }
 `;
 
+const WarnBox = styled.div`
+  background-color: #feebeb;
+  padding: 0.5em;
+  font-size: 0.8em;
+`;
+
 function SVGDropzone({ onChange, value }) {
   const onDrop = async (files) => {
     const file = files[0];
@@ -111,6 +117,21 @@ export default observer(function EditSVGForm() {
     <Form onSubmit={saveChanges}>
       <SaveButtonRow saveDisabled={!svgString} />
       <SVGDropzone onChange={setSVGString} value={svgString} />
+      {state.error && (
+        <WarnBox>
+          You might want to tweak your SVG by using{" "}
+          <a
+            target="_blank"
+            href="https://iconly.io/tools/svg-convert-stroke-to-fill"
+          >
+            this tool
+          </a>{" "}
+          or an editor like{" "}
+          <a href="https://inkscape.org/" target="_blank">
+            Inkscape
+          </a>
+        </WarnBox>
+      )}
 
       <InputBlock title="Depth" htmlFor="depth">
         <input
