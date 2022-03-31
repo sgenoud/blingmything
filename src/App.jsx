@@ -10,9 +10,10 @@ const Main = styled.div`
   display: grid;
   grid-template:
     "nav nav" 30px
-    "menu main" auto / 200px auto;
+    "menu main" calc(100vh - 30px - 4.5rem) / 250px auto;
 
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
   padding: 2rem;
   padding-top: 1rem;
   grid-gap: 1.5rem;
@@ -27,6 +28,7 @@ const Main = styled.div`
   }
 
   & > :nth-child(2) {
+    overflow-y: auto;
     grid-area: menu;
   }
 
