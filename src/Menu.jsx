@@ -11,7 +11,8 @@ import {
 } from "./components/buttons.jsx";
 import download from "./download";
 
-import { logoSvgString } from "./logo";
+//import { logoSvgString } from "./logo";
+import logoSvgString from "./logo.svg?raw";
 
 import UndoIcon from "./icons/Undo";
 import RedoIcon from "./icons/Redo";
@@ -70,12 +71,15 @@ const SaveButtons = styled.div`
   display: flex;
   justify-content: flex-end;
 
-  margin-top: 0.4em;
+  margin-top: 2em;
+  padding-bottom: 0.6em;
 
-  & > {
-    :not(:first-child) {
-      margin-left: 1em;
-    }
+  & > :not(:first-child) {
+    margin-left: 1em;
+  }
+
+  & > :last-child {
+    width: 100%;
   }
 `;
 
@@ -160,6 +164,7 @@ const EditInsetForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
+      <SaveButtonRow />
       <InputBlock title="Depth" htmlFor="depth">
         <input
           id="depth"
@@ -178,8 +183,6 @@ const EditInsetForm = observer(() => {
           onChange={(e) => setMargin(e.target.value)}
         />
       </InputBlock>
-
-      <SaveButtonRow />
     </Form>
   );
 });
@@ -215,6 +218,7 @@ const EditHoneycombForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
+      <SaveButtonRow />
       <InputBlock title="Depth" htmlFor="depth">
         <input
           id="depth"
@@ -251,8 +255,6 @@ const EditHoneycombForm = observer(() => {
           onChange={(e) => setMargin(e.target.value)}
         />
       </InputBlock>
-
-      <SaveButtonRow />
     </Form>
   );
 });
@@ -290,6 +292,7 @@ const EditGridForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
+      <SaveButtonRow />
       <InputBlock title="Depth" htmlFor="depth">
         <input
           id="depth"
@@ -334,8 +337,6 @@ const EditGridForm = observer(() => {
           onChange={(e) => setMargin(e.target.value)}
         />
       </InputBlock>
-
-      <SaveButtonRow />
     </Form>
   );
 });
@@ -378,7 +379,15 @@ const EditTextForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
-      <input autoFocus value={text} onChange={(e) => setText(e.target.value)} />
+      <SaveButtonRow saveDisabled={!text} />
+      <InputBlock title="Text" htmlFor="text">
+        <input
+          id="text"
+          autoFocus
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+      </InputBlock>
 
       <InputBlock title="Depth" htmlFor="depth">
         <input
@@ -429,7 +438,6 @@ const EditTextForm = observer(() => {
           />
         </Inline>
       </InputBlock>
-      <SaveButtonRow />
     </Form>
   );
 });
@@ -540,6 +548,7 @@ const EditSVGForm = observer(() => {
 
   return (
     <Form onSubmit={saveChanges}>
+      <SaveButtonRow saveDisabled={!svgString} />
       <SVGDropzone onChange={setSVGString} value={svgString} />
 
       <InputBlock title="Depth" htmlFor="depth">
@@ -591,7 +600,6 @@ const EditSVGForm = observer(() => {
           />
         </Inline>
       </InputBlock>
-      <SaveButtonRow saveDisabled={!svgString} />
     </Form>
   );
 });
@@ -633,7 +641,6 @@ const DecorationConfig = observer(() => {
         </select>
       </InputBlock>
 
-      {body && <hr />}
       {body}
     </>
   );

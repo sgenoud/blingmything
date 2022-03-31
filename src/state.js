@@ -150,7 +150,12 @@ const AppState = types
     },
 
     get activeDecoration() {
-      if (self.ui.faceSelectionMode || self.ui.faceSelected) return null;
+      if (
+        self.ui.faceSelectionMode ||
+        self.ui.faceSelected ||
+        self.ui.faceSelected === 0
+      )
+        return null;
       return self.previousDecoration;
     },
   }))
