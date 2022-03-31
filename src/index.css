@@ -64,6 +64,11 @@ main {
     padding: 3rem 1rem;
 }
 
+img {
+    max-width: 100%;
+    object-fit: contain;
+}
+
 hr {
     background-color: var(--color-bg-secondary);
     border: none;

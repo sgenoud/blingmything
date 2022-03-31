@@ -80,11 +80,36 @@ const GridDecorationConfig = types
     },
   }));
 
+const SVGDecorationConfig = types
+  .model("SVGDecorationConfig", {
+    decoration: types.literal("svg"),
+    faceIndex: types.number,
+    depth: types.optional(types.number, -0.2),
+    svgString: types.optional(types.string, ""),
+    angle: types.optional(types.number, 0),
+    xShift: types.optional(types.number, 0),
+    yShift: types.optional(types.number, 0),
+    width: types.optional(types.number, 60),
+  })
+  .actions((self) => ({
+    loadFromFile() {},
+
+    update({ angle, xShift, yShift, svgString, depth, width }) {
+      if (angle === 0 || angle) self.angle = angle;
+      if (xShift === 0 || xShift) self.xShift = xShift;
+      if (yShift === 0 || yShift) self.yShift = yShift;
+      if (depth) self.depth = depth;
+      if (width) self.width = width;
+      if (svgString === "" || svgString) self.svgString = svgString;
+    },
+  }));
+
 const DecorationConfig = types.union(
   TextDecorationConfig,
   InsetDecorationConfig,
   HoneycombDecorationConfig,
-  GridDecorationConfig
+  GridDecorationConfig,
+  SVGDecorationConfig
 );
 
 const inSeries = (func) => {
@@ -125,7 +150,12 @@ const AppState = types
     },
 
     get activeDecoration() {
-      if (self.ui.faceSelectionMode || self.ui.faceSelected) return null;
+      if (
+        self.ui.faceSelectionMode ||
+        self.ui.faceSelected ||
+        self.ui.faceSelected === 0
+      )
+        return null;
       return self.previousDecoration;
     },
   }))
@@ -135,6 +165,16 @@ const AppState = types
         self.decorations.push(
           TextDecorationConfig.create({
             decoration: "text",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
+      if (decorationType === "svg") {
+        self.decorations.push(
+          SVGDecorationConfig.create({
+            decoration: "svg",
             faceIndex: self.ui.faceSelected,
             ...decoration,
           })
@@ -187,6 +227,19 @@ const AppState = types
       self.processing = true;
       try {
         yield api.importFile(newFile);
+        self.baseShapeReady = true;
+        self.error = false;
+      } catch (e) {
+        console.error(e);
+        self.error = true;
+      }
+      self.processing = false;
+    }),
+
+    startWithBox: flow(function* startWithBox() {
+      self.processing = true;
+      try {
+        yield api.importBox();
         self.baseShapeReady = true;
         self.error = false;
       } catch (e) {
