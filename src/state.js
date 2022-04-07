@@ -5,6 +5,8 @@ import { UndoManager } from "mst-middlewares";
 import api from "./api";
 import UIState from "./ui-state";
 
+window.makeVectors = api.makeVectors;
+
 const TextDecorationConfig = types
   .model("TextDecorationConfig", {
     decoration: types.literal("text"),

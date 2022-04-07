@@ -1,24 +1,13 @@
 import { getOC, Blueprint } from "replicad";
 
-const hc = (curve) => {
-  const oc = getOC();
-  return new oc.Handle_Geom2d_Curve_2(curve);
-};
-
-const pnt = ([x, y]) => {
-  const oc = getOC();
-  return new oc.gp_Pnt2d_3(x, y);
-};
-
 const pntEq = ([x0, y0], [x, y]) => {
   return Math.abs(x0 - x) < 1e-9 && Math.abs(y0 - y) < 1e-9;
 };
 
 const curveMidPoint = (curve) => {
   // (lp - fp) / 2 + fp
-  const midParameter = (curve.LastParameter() + curve.FirstParameter()) / 2;
-  const midPoint = curve.Value(midParameter);
-  return [midPoint.X(), midPoint.Y()];
+  const midParameter = (curve.lastParameter + curve.firstParameter) / 2;
+  return curve.value(midParameter);
 };
 
 function zip(arrays) {
@@ -29,59 +18,9 @@ function zip(arrays) {
   });
 }
 
-/* Split a curve into segments separated by points */
-/* The points need to be on the curve */
-const splitCurve = (curve, points) => {
-  const oc = getOC();
-
-  let parameters = points.map((point) => {
-    const projector = new oc.Geom2dAPI_ProjectPointOnCurve_2(
-      pnt(point),
-      hc(curve)
-    );
-
-    if (projector.LowerDistance() > 1e-6) {
-      throw new Error("Point not on curve");
-    }
-    return projector.LowerDistanceParameter();
-  });
-
-  // We only split on each point once
-  parameters = Array.from(new Set(parameters)).sort((a, b) => a - b);
-  const firstParam = curve.FirstParameter();
-  const lastParam = curve.LastParameter();
-
-  if (firstParam > lastParam) parameters.reverse();
-
-  // We do not split again on the start and end
-  if (parameters[0] === firstParam) parameters = parameters.slice(1);
-  if (parameters[parameters.length] === lastParam)
-    parameters = parameters.slice(0, -1);
-
-  if (!parameters.length) return curve;
-
-  return zip([
-    [curve.FirstParameter(), ...parameters],
-    [...parameters, curve.LastParameter()],
-  ]).map(
-    ([first, last]) =>
-      new oc.Geom2d_TrimmedCurve(hc(curve), first, last, true, true)
-  );
-};
-
-const firstPoint = (curve) => {
-  const fp = curve.Value(curve.FirstParameter());
-  return [fp.X(), fp.Y()];
-};
-
-const lastPoint = (curve) => {
-  const lp = curve.Value(curve.LastParameter());
-  return [lp.X(), lp.Y()];
-};
-
 const rotateToStartAt = (curves, point) => {
   const startIndex = curves.findIndex((curve) => {
-    return pntEq(point, firstPoint(curve));
+    return pntEq(point, curve.firstPoint);
   });
 
   const start = curves.slice(0, startIndex);
@@ -93,7 +32,7 @@ const rotateToStartAt = (curves, point) => {
 function* intersectedSegments(curves, allIntersections) {
   const endsAtIntersection = (curve) => {
     return !!allIntersections.find((intersection) => {
-      return pntEq(intersection, lastPoint(curve));
+      return pntEq(intersection, curve.lastPoint);
     });
   };
 
@@ -139,7 +78,7 @@ export function blueprintsIntersectionSegments(first, second) {
 
   first.curves.forEach((thisCurve, firstIndex) => {
     second.curves.forEach((otherCurve, secondIndex) => {
-      intersector.Init_1(hc(thisCurve), hc(otherCurve), 1e-3);
+      intersector.Init_1(thisCurve.wrapped, otherCurve.wrapped, 1e-3);
 
       const intersections = Array.from(pointsIteration(intersector));
       allIntersections.push(...intersections);
@@ -153,7 +92,7 @@ export function blueprintsIntersectionSegments(first, second) {
   // We further split the curves at the intersections
   const cutCurve = ([curve, intersections]) => {
     if (!intersections.length) return curve;
-    return splitCurve(curve, intersections);
+    return curve.splitAt(intersections);
   };
   let firstCurveSegments = zip([first.curves, firstCurvePoints]).flatMap(
     cutCurve
@@ -179,14 +118,14 @@ export function blueprintsIntersectionSegments(first, second) {
 
   if (
     !pntEq(
-      lastPoint(secondIntersectedSegments[0][0]),
-      lastPoint(firstIntersectedSegments[0][0])
+      secondIntersectedSegments[0][0].lastPoint,
+      firstIntersectedSegments[0][0].lastPoint
     )
   ) {
     secondIntersectedSegments.reverse();
     secondIntersectedSegments.forEach((segment) => {
       segment.reverse();
-      segment.forEach((curve) => curve.Reverse());
+      segment.forEach((curve) => curve.reverse());
     });
   }
 
@@ -196,30 +135,29 @@ export function blueprintsIntersectionSegments(first, second) {
 const fuseBlueprints = (first, second) => {
   // TODO: handle overlapping curves
   const segments = blueprintsIntersectionSegments(first, second);
+  const s = segments.flatMap(([firstSegment, secondSegment]) => {
+    const segments = [];
 
-  return new Blueprint(
-    segments.flatMap(([firstSegment, secondSegment]) => {
-      const segments = [];
+    const firstSegmentPoint = curveMidPoint(firstSegment[0]);
+    if (!second.isInside(firstSegmentPoint)) {
+      segments.push(...firstSegment);
+    }
 
-      const firstSegmentPoint = curveMidPoint(firstSegment[0]);
-      if (!second.isInside(firstSegmentPoint)) {
-        segments.push(...firstSegment);
+    const secondSegmentPoint = curveMidPoint(secondSegment[0]);
+    if (!first.isInside(secondSegmentPoint)) {
+      // When there are only two segments we cannot know if we are in the
+      // same until here - so it is possible that they are mismatched.
+      if (segments.length) {
+        secondSegment.reverse();
+        secondSegment.forEach((s) => s.reverse());
       }
+      segments.push(...secondSegment);
+    }
 
-      const secondSegmentPoint = curveMidPoint(secondSegment[0]);
-      if (!first.isInside(secondSegmentPoint)) {
-        // When there are only two segments we cannot know if we are in the
-        // same until here - so it is possible that they are mismatched.
-        if (segments.length) {
-          secondSegment.reverse();
-          secondSegment.forEach((s) => s.Reverse());
-        }
-        segments.push(...secondSegment);
-      }
+    return segments;
+  });
 
-      return segments;
-    })
-  );
+  return new Blueprint(s);
 };
 
 export function blueprintsIntersect(first, second) {
@@ -228,40 +166,15 @@ export function blueprintsIntersect(first, second) {
 
   for (const thisCurve of first.curves) {
     for (const otherCurve of second.curves) {
-      intersector.Init_1(
-        new oc.Handle_Geom2d_Curve_2(thisCurve),
-        new oc.Handle_Geom2d_Curve_2(otherCurve),
-        1e-6
-      );
+      intersector.Init_1(thisCurve.wrapped, otherCurve.wrapped, 1e-6);
       if (intersector.NbPoints()) return true;
     }
   }
   return false;
 }
 
-const curveInfo = (curve) => {
-  const fp = curve.Value(curve.FirstParameter());
-  const firstPoint = [fp.X(), fp.Y()];
-
-  const lp = curve.Value(curve.LastParameter());
-  const lastPoint = [lp.X(), lp.Y()];
-
-  return { firstPoint, lastPoint };
-};
-
-const formatPoint = ([x, y]) => {
-  return `(${x.toFixed(2)}, ${y.toFixed(2)})`;
-};
-
 export const curvesInfo = (curves) => {
-  return (
-    curves
-      .map((c) => {
-        const { firstPoint, lastPoint } = curveInfo(c);
-        return `${formatPoint(firstPoint)} - ${formatPoint(lastPoint)}`;
-      })
-      .join("\n") + "\n --- \n"
-  );
+  return curves.map((c) => c.repr).join("\n") + "\n --- \n";
 };
 
 export const fuseIntersectingBlueprints = (blueprints) => {
