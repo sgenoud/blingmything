@@ -12,5 +12,5 @@ export default async (model) => {
 
   return Promise.all(waitToBeDone)
     .then(() => zip.generateAsync({ type: "blob" }))
-    .then((blob) => FileSaver.saveAs(blob, `pimped-model.zip`));
+    .then((blob) => FileSaver.saveAs(blob, `blinged-model.zip`));
 };

@@ -1,6 +1,6 @@
 # Why do you want me to sign this thing?
 
-`pimpmything` as a project of the `replicad` family is a lot of work. I want to
+`blingmything` as a project of the `replicad` family is a lot of work. I want to
 have people benefit from it as much as possible. This means that I want it to
 be open source. But I also want to be able to benefit from it if people build
 a business on top of it.

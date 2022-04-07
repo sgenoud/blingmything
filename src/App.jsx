@@ -83,13 +83,13 @@ export default React.memo(function ReplicadApp() {
       <Main>
         <div>
           <Logo size="2em" />
-          <span>Pimp my Thing</span>
+          <span>Bling my Thing</span>
           <Donate />
         </div>
         <Menu />
         <Viewer />
         <Footer>
-          <a href="https://github.com/sgenoud/pimpmything" target="_blank">
+          <a href="https://github.com/sgenoud/blingmything" target="_blank">
             GitHub
           </a>
           <a href="mailto:steve@sgenoud.com" target="_blank">

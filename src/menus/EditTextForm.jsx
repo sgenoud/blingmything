@@ -9,7 +9,7 @@ export default observer(function EditTextForm() {
   const state = useAppState();
 
   const [text, setText] = useState(
-    state.previousDecoration?.text || "pimp me!"
+    state.previousDecoration?.text || "Add bling!"
   );
   const [depth, setDepth] = useState(state.previousDecoration?.depth || -0.2);
 

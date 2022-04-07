@@ -42,7 +42,7 @@ export default function SupportModal({ onClose }) {
       <DialogTitle onClose={onClose}>Support my work</DialogTitle>
       <Body>
         <div>
-          Thanks for helping me maintain Pimp my Thing. You can support my work
+          Thanks for helping me maintain Bling my Thing. You can support my work
           with these services.
         </div>
 
