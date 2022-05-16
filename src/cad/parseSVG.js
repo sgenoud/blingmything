@@ -77,5 +77,6 @@ export function SVGBlueprints(svg, { width } = {}) {
       outBlueprints.boundingBox.center
     );
   }
+
   return outBlueprints;
 }

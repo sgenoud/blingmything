@@ -13,6 +13,8 @@ import { addHoneycomb } from "./addHoneycomb";
 import { addGrid } from "./addGrid";
 import { addSVG } from "./addSVG";
 
+import { SVGBlueprints } from "./parseSVG";
+
 import { STATE, registerAsLatestShape } from "./state";
 
 export async function importFile(file) {
@@ -48,6 +50,10 @@ export async function startWithBox() {
 
   return shape;
 }
+
+export const testSVG = function testSVG(svgString) {
+  return SVGBlueprints(svgString).toSVG();
+};
 
 export const decorateShape = moize(
   async function decorateShape(changes) {

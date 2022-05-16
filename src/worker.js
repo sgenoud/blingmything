@@ -9,6 +9,7 @@ import {
   importFile as loadShape,
   decorateShape as decorate,
   startWithBox,
+  testSVG,
 } from "./cad";
 
 // This is the logic to load the web assembly code into replicad
@@ -67,6 +68,7 @@ const API = {
   decorateShape,
   createSTL,
   createSTEP,
+  testSVG,
 };
 
 expose(API);

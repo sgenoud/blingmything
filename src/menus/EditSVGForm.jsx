@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { observer } from "mobx-react";
 import { useDropzone } from "react-dropzone";
 
 import useAppState from "../useAppState";
+import api from "../api";
 
 import logoSvgString from "../logo.svg?raw";
 
@@ -88,6 +89,8 @@ export default observer(function EditSVGForm() {
   const [svgString, setSVGString] = useState(
     state.previousDecoration?.svgString || ""
   );
+  const [svgImg, setSVGImg] = useState("");
+  const [SVGError, setSVGError] = useState(false);
   const [depth, setDepth] = useState(state.previousDecoration?.depth || -0.2);
 
   const [width, setWidth] = useState(state.previousDecoration?.setWidth || 60);
@@ -95,6 +98,23 @@ export default observer(function EditSVGForm() {
 
   const [xShift, setXShift] = useState(state.previousDecoration?.xShift || 0);
   const [yShift, setYShift] = useState(state.previousDecoration?.yShift || 0);
+
+  useEffect(() => {
+    if (!svgString) {
+      setSVGImg("");
+      return;
+    }
+    api
+      .testSVG(svgString)
+      .then((img) => {
+        setSVGImg(img);
+        setSVGError(false);
+      })
+      .catch((e) => {
+        setSVGImg("");
+        setSVGError(true);
+      });
+  }, [svgString]);
 
   const saveChanges = (e) => {
     e.preventDefault();
@@ -116,9 +136,14 @@ export default observer(function EditSVGForm() {
   return (
     <Form onSubmit={saveChanges}>
       <SaveButtonRow saveDisabled={!svgString} />
-      <SVGDropzone onChange={setSVGString} value={svgString} />
-      {state.error && (
+      <SVGDropzone onChange={setSVGString} value={svgImg || ""} />
+      {(state.error || SVGError) && (
         <WarnBox>
+          {SVGError && (
+            <div style={{ marginBottom: "0.2em" }}>
+              We failed to load this file.
+            </div>
+          )}
           You might want to tweak your SVG by using{" "}
           <a
             target="_blank"
