@@ -12,6 +12,7 @@ import { addInset } from "./addInset";
 import { addHoneycomb } from "./addHoneycomb";
 import { addGrid } from "./addGrid";
 import { addSVG } from "./addSVG";
+import { addVoronoi } from "./addVoronoi";
 
 import { SVGBlueprints } from "./parseSVG";
 
@@ -73,6 +74,8 @@ export const decorateShape = moize(
       return registerAsLatestShape(await addHoneycomb(shape, lastChange));
     if (lastChange.decoration === "grid")
       return registerAsLatestShape(await addGrid(shape, lastChange));
+    if (lastChange.decoration === "voronoi")
+      return registerAsLatestShape(await addVoronoi(shape, lastChange));
 
     throw new Error(`Could not decorate with ${lastChange.decoration}`);
   },

@@ -82,6 +82,26 @@ const GridDecorationConfig = types
     },
   }));
 
+const VoronoiDecorationConfig = types
+  .model("VoronoiDecorationConfig", {
+    decoration: types.literal("voronoi"),
+    faceIndex: types.number,
+    cellCount: types.optional(types.number, 10),
+    depth: types.optional(types.number, -0.2),
+    margin: types.optional(types.number, 4),
+    padding: types.optional(types.number, 2),
+    seed: types.optional(types.number, 1234),
+  })
+  .actions((self) => ({
+    update({ depth, margin, cellCount, padding, seed }) {
+      if (depth) self.depth = depth;
+      if (cellCount) self.cellCount = cellCount;
+      if (padding) self.padding = padding;
+      if (margin === 0 || margin) self.margin = margin;
+      if (seed === 0 || seed) self.seed = seed;
+    },
+  }));
+
 const SVGDecorationConfig = types
   .model("SVGDecorationConfig", {
     decoration: types.literal("svg"),
@@ -111,7 +131,8 @@ const DecorationConfig = types.union(
   InsetDecorationConfig,
   HoneycombDecorationConfig,
   GridDecorationConfig,
-  SVGDecorationConfig
+  SVGDecorationConfig,
+  VoronoiDecorationConfig
 );
 
 const inSeries = (func) => {
@@ -207,6 +228,16 @@ const AppState = types
         self.decorations.push(
           GridDecorationConfig.create({
             decoration: "grid",
+            faceIndex: self.ui.faceSelected,
+            ...decoration,
+          })
+        );
+      }
+
+      if (decorationType === "voronoi") {
+        self.decorations.push(
+          VoronoiDecorationConfig.create({
+            decoration: "voronoi",
             faceIndex: self.ui.faceSelected,
             ...decoration,
           })

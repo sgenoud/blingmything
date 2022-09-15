@@ -18,6 +18,7 @@ import EditSVGForm from "./menus/EditSVGForm.jsx";
 import EditInsetForm from "./menus/EditInsetForm.jsx";
 import EditHoneycombForm from "./menus/EditHoneycombForm.jsx";
 import EditGridForm from "./menus/EditGridForm.jsx";
+import EditVoronoiForm from "./menus/EditVoronoiForm.jsx";
 
 const Menu = styled.div`
   display: flex;
@@ -75,6 +76,7 @@ const DecorationConfig = observer(() => {
   if (currentDecoration === "inset") body = <EditInsetForm />;
   if (currentDecoration === "honeycomb") body = <EditHoneycombForm />;
   if (currentDecoration === "grid") body = <EditGridForm />;
+  if (currentDecoration === "voronoi") body = <EditVoronoiForm />;
 
   return (
     <>
@@ -89,7 +91,7 @@ const DecorationConfig = observer(() => {
           <option value="svg">Vector Image (SVG)</option>
           <option value="honeycomb">Honeycomb</option>
           <option value="inset">Inset</option>
-          <option value="grid">Grid</option>
+          <option value="voronoi">Voronoi</option>
         </select>
       </InputBlock>
 
