@@ -25,6 +25,7 @@
     "react-dropzone": "^12.0.4",
     "react-portal": "^4.2.2",
     "replicad": "0.14.3",
+    "replicad-decorate": "^0.1.0",
     "replicad-opencascadejs": "0.14.3",
     "replicad-threejs-helper": "0.14.0",
     "styled-components": "^5.3.3",

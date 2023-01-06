@@ -7,14 +7,15 @@ import {
 } from "replicad";
 import moize from "moize";
 
-import { addText } from "./addText";
-import { addInset } from "./addInset";
-import { addHoneycomb } from "./addHoneycomb";
-import { addGrid } from "./addGrid";
-import { addSVG } from "./addSVG";
-import { addVoronoi } from "./addVoronoi";
-
-import { drawSVG } from "./parseSVG";
+import {
+  addText,
+  addSVG,
+  addInset,
+  addHoneycomb,
+  addGrid,
+  addVoronoi,
+  drawSVG,
+} from "replicad-decorate";
 
 import { STATE, registerAsLatestShape } from "./state";
 
