@@ -1,5 +1,5 @@
-import { draw, sketchFaceOffset, compoundShapes } from "replicad";
-import { range, faceSize, planeFromFace, randomSeed } from "./common";
+import { draw, Drawing } from "replicad";
+import { range, faceSize, randomSeed, addPatternToShape } from "./common";
 import { Delaunay } from "d3-delaunay";
 
 function drawPolygonFromPoints(points) {
@@ -8,40 +8,66 @@ function drawPolygonFromPoints(points) {
   return bps.close();
 }
 
-export function addVoronoi(
-  shape,
-  { faceIndex, depth, padding = 2, margin = 2, cellCount = 10, seed = 1212 }
-) {
-  const face = shape.faces[faceIndex];
-  const { vLen, uLen, uMin, vMin, uMax, vMax } = faceSize(face);
-  const plane = planeFromFace(face);
-
+const voronoiPattern = ({
+  cellCount,
+  seed,
+  width,
+  height,
+  padding,
+  fillet,
+}) => {
   const random = randomSeed(seed);
 
+  const correctedMargin = -padding / 2 - 1;
+
   const points = range(cellCount).map(() => [
-    random() * uLen + uMin,
-    random() * vLen + vMin,
+    random() * (width - 2 * correctedMargin) + correctedMargin,
+    random() * (height - 2 * correctedMargin) + correctedMargin,
   ]);
 
   const polygons = Delaunay.from(points)
-    .voronoi([uMin, vMin, uMax, vMax])
+    .voronoi([
+      correctedMargin,
+      correctedMargin,
+      width - correctedMargin,
+      height - correctedMargin,
+    ])
     .cellPolygons();
 
-  const cells = [];
+  let cells = new Drawing();
   for (let polygon of polygons) {
-    const outerFace = drawPolygonFromPoints(polygon)
-      .sketchOnPlane(plane)
-      .face();
-
-    cells.push(sketchFaceOffset(outerFace, -padding / 2).extrude(depth));
+    const outerFace = drawPolygonFromPoints(polygon);
+    cells = cells.fuse(
+      outerFace.offset(-(padding / 2 + fillet)).offset(fillet)
+    );
   }
 
-  let structure = compoundShapes(cells);
+  return cells;
+};
 
-  const innerBody = sketchFaceOffset(face, -margin).extrude(depth);
-  structure = innerBody.intersect(structure);
+export function addVoronoi(
+  shape,
+  {
+    faceIndex,
+    depth,
+    padding = 2,
+    margin = 2,
+    cellCount = 10,
+    seed = 1212,
+    fillet = 0.5,
+  }
+) {
+  const face = shape.faces[faceIndex];
+  const { width, height } = faceSize(face);
 
-  const newShape =
-    depth > 0 ? shape.clone().fuse(structure) : shape.clone().cut(structure);
-  return newShape;
+  let pattern = voronoiPattern({
+    cellCount,
+    width,
+    height,
+    padding,
+    fillet,
+    seed,
+  });
+
+  return addPatternToShape(shape, face, pattern, depth, margin);
 }

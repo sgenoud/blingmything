@@ -1,9 +1,5 @@
 import { fuseBlueprints } from "replicad";
 
-export const curvesInfo = (curves) => {
-  return curves.map((c) => c.repr).join("\n") + "\n --- \n";
-};
-
 export const fuseIntersectingBlueprints = (blueprints) => {
   const fused = new Map();
 

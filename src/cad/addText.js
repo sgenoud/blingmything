@@ -1,5 +1,5 @@
-import { loadFont, textBlueprints } from "replicad";
-import { planeFromFace } from "./common";
+import { loadFont, drawText } from "replicad";
+import { faceSize, addPatternToShape } from "./common";
 
 const ROBOTO =
   "https://fonts.gstatic.com/s/roboto/v15/W5F8_SL0XFawnjxHGsZjJA.ttf";
@@ -11,19 +11,21 @@ export async function addText(
   await loadFont(ROBOTO);
 
   const face = shape.faces[faceIndex];
-  const plane = planeFromFace(face);
 
-  let txt = textBlueprints(text, { fontSize });
+  let txt = drawText(text, { fontSize });
   const txtCenter = txt.boundingBox.center;
 
-  txt = txt.translate(-txtCenter[0], -txtCenter[1]);
+  if (face.orientation === "backward") {
+    txt = txt.mirror([1, 0], txtCenter, "plane");
+  }
+
+  const { width, height } = faceSize(face);
+  txt = txt
+    .translate(-txtCenter[0], -txtCenter[1])
   if (angle) {
     txt = txt.rotate(angle);
   }
-  txt = txt.translate(xShift, yShift);
+  txt = txt.translate(xShift + width / 2, yShift + height / 2);
 
-  const txt3d = txt.sketchOnPlane(plane).extrude(depth);
-  const newShape =
-    depth > 0 ? shape.clone().fuse(txt3d) : shape.clone().cut(txt3d);
-  return newShape;
+  return addPatternToShape(shape, face, txt, depth, 1);
 }

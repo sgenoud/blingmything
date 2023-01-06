@@ -14,7 +14,7 @@ import { addGrid } from "./addGrid";
 import { addSVG } from "./addSVG";
 import { addVoronoi } from "./addVoronoi";
 
-import { SVGBlueprints } from "./parseSVG";
+import { drawSVG } from "./parseSVG";
 
 import { STATE, registerAsLatestShape } from "./state";
 
@@ -53,7 +53,7 @@ export async function startWithBox() {
 }
 
 export const testSVG = function testSVG(svgString) {
-  return SVGBlueprints(svgString).toSVG();
+  return drawSVG(svgString).toSVG();
 };
 
 export const decorateShape = moize(

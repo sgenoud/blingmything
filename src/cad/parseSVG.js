@@ -1,4 +1,4 @@
-import { organiseBlueprints } from "replicad";
+import { organiseBlueprints, Drawing } from "replicad";
 import { DOMParser } from "xmldom";
 
 import { fuseIntersectingBlueprints } from "./blueprintHelpers";
@@ -8,7 +8,7 @@ import {
   ellipseBlueprint,
 } from "./svgShapes";
 
-export function SVGBlueprints(svg, { width } = {}) {
+export function drawSVG(svg, { width } = {}) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(svg, "text/html");
 
@@ -78,5 +78,5 @@ export function SVGBlueprints(svg, { width } = {}) {
     );
   }
 
-  return outBlueprints;
+  return new Drawing(outBlueprints);
 }

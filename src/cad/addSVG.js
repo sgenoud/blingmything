@@ -1,15 +1,14 @@
-import { planeFromFace } from "./common";
+import { addPatternToShape, faceSize } from "./common";
 
-import { SVGBlueprints } from "./parseSVG";
+import { drawSVG } from "./parseSVG";
 
 export async function addSVG(
   shape,
   { faceIndex, depth, svgString, width = 60, angle = 0, xShift = 0, yShift = 0 }
 ) {
   const face = shape.faces[faceIndex];
-  const plane = planeFromFace(face);
 
-  let image = SVGBlueprints(svgString, { width });
+  let image = drawSVG(svgString, { width });
   const imgCenter = image.boundingBox.center;
 
   image = image.translate(-imgCenter[0], -imgCenter[1]);
@@ -18,9 +17,8 @@ export async function addSVG(
   }
   image = image.translate(xShift, yShift);
 
-  const image3d = image.sketchOnPlane(plane).extrude(depth);
+  const { width: faceWidth, height: faceHeight } = faceSize(face);
+  image = image.translate(faceWidth / 2, faceHeight / 2);
 
-  const newShape =
-    depth > 0 ? shape.clone().fuse(image3d) : shape.clone().cut(image3d);
-  return newShape;
+  return addPatternToShape(shape, face, image, depth, 1);
 }

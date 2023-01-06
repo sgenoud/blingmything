@@ -90,6 +90,7 @@ const DecorationConfig = observer(() => {
           <option value="text">Text</option>
           <option value="svg">Vector Image (SVG)</option>
           <option value="honeycomb">Honeycomb</option>
+          <option value="grid">Grid</option>
           <option value="inset">Inset</option>
           <option value="voronoi">Voronoi</option>
         </select>
